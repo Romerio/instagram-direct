@@ -38,5 +38,8 @@
     "babel-preset-stage-3": "^6.24.1",
     "babel-register": "^6.3.13",
     "rimraf": "^2.6.3"
+  },
+  "dependencies": {
+    "instagram-private-api": "^1.30.0"
   }
 }
