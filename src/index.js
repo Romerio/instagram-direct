@@ -1,14 +1,16 @@
 const { IgApiClient } = require('instagram-private-api');
-const ig = new IgApiClient();
 
 exports.loginUser = async ({ username, password }) => {
     try {
+        const ig = new IgApiClient();
+
         ig.state.generateDevice(process.env.IG_USERNAME || username);
+
         await ig.simulate.preLoginFlow();
+        await ig.account.login(process.env.IG_USERNAME || username, process.env.IG_PASSWORD || password);
+        process.nextTick(async () => await ig.simulate.postLoginFlow());
 
-        const userClient = await ig.account.login(process.env.IG_USERNAME || username, process.env.IG_PASSWORD || password);
-
-        return userClient
+        return ig
     } catch (error) {
         throw error
     }
@@ -29,7 +31,38 @@ exports.getChatWithNewMessages = async ({ userClient, lastMessageTimestamp }) =>
 
 exports.getAllNewChatMessages = async ({ userClient, lastMessageTimestamp }) => {
     try {
+        const inboxFeed = ig.feed.directInbox();
+        const threads = await inboxFeed.items();
         
+        await thread.broadcastPhoto({
+            file: readFileSync('./tools/images/original.jpg'),
+        });
+    } catch (error) {
+        throw error
+    }
+}
+
+/**
+ * Buscar chats com novas mensagens
+ * 
+ */
+exports.getAllChatsWithNewMessages = async ({ userClient, timestamp }) => {
+    try {
+        const inboxFeed = userClient.feed.directInbox();
+        const threads = await inboxFeed.items();
+
+        console.log('# thread 0')
+        console.log(threads[0])
+        console.log('\n#\n')
+
+        const thread = await userClient.entity.directThread(threads[0].thread_id);
+
+        // await thread.markItemSeen(threads[0].last_permanent_item.item_id)
+        if(timestamp) {
+           // const thread = userClient.entity.directThread(threads[0].thread_id);
+        } else {
+            return threads
+        }
     } catch (error) {
         throw error
     }
