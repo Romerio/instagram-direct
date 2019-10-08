@@ -1,0 +1,8 @@
+Direct
+
+Direct
+
+https://www.npmjs.com/package/instagram-private-api
+https://github.com/dilame/instagram-private-api
+https://github.com/dilame/instagram-private-api/issues/792
+https://stackoverflow.com/questions/57340540/a-way-to-get-and-send-direct-messages-in-instagram-in-nodejs

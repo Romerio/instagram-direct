@@ -1,0 +1,13 @@
+[Users]
+
+- username: koruja_contato / koruja.contato@gmail.com
+senha: krjknbx84902
+
+- username: koruja_002 / koruja.team@gmail.com
+senha: krjknbx84902
+
+- Instagram Kinbox
+{
+    email: kinbox.koruja@gmail.com
+    senha: krjknbx84902
+}
