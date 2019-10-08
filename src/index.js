@@ -1,6 +1,14 @@
 const { IgApiClient } = require('instagram-private-api');
 
-exports.loginUser = async ({ username, password }) => {
+const approveAllNewChats = async () => {
+    try {
+        
+    } catch (error) {
+        throw error
+    }
+}
+
+exports.authPlatform = async ({ username, password }) => {
     try {
         const ig = new IgApiClient();
 
@@ -72,14 +80,6 @@ exports.sendNewChatMessage = async ({ userClient, message }) => {
     try {
         const type = message.type
         const content = message.content
-
-    } catch (error) {
-        throw error
-    }
-}
-
-exports.approveAllNewChats = async ({ userClient }) => {
-    try {
 
     } catch (error) {
         throw error
