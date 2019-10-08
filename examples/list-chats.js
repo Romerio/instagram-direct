@@ -1,10 +1,14 @@
-const { loginUser, getAllNewChatsByTimestamp } = require('../src/index')
+const { 
+    authPlatform,
+    approveAllNewChats,
+    getAllChatsWithNewMessages } = require('../src/index')
 
 const process = async () => {
     try {
-        const userClient = await loginUser({ username: 'koruja_contato', password: 'krjknbx84902'  })
+        const userClient = await authPlatform({ username: 'koruja_contato', password: 'krjknbx84902'  })
         
-        const chats =  await getAllNewChatsByTimestamp({ userClient, timestamp: null})
+        // await getAllChatsWithNewMessages({ userClient })
+        await approveAllNewChats({ userClient })
     } catch (error) {
         console.log(error)
     }
