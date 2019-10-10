@@ -102,7 +102,6 @@ exports.getAllChatsWithNewMessages = async ({ userClient }) => {
                     return chatItem.last_permanent_item.timestamp > chatLastSeen
                 })
     
-                console.log('# 0')
                 chatsWithNewMessage = moreChatsWithNewMessage.length > 0 
                     ? moreChatsWithNewMessage.filter(chatItem => {
                         return !chatItem.muted && !chatItem.is_group && !chatItem.archived
@@ -117,9 +116,7 @@ exports.getAllChatsWithNewMessages = async ({ userClient }) => {
                         }
                     })
                     : chatsWithNewMessage
-    
-                console.log('# 1')
-    
+        
                 if(moreChatsWithNewMessage.length >= 10) {
                     console.log(' - próxima página')
                 } else {
