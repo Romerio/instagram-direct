@@ -145,7 +145,8 @@ exports.getAllChatsWithNewMessages = async ({ userClient }) => {
 
         return chatsWithNewMessage
     } catch (error) {
-        throw error
+        console.log(error)
+        return []
     }
 }
 
