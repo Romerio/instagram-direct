@@ -101,8 +101,9 @@ exports.getAllChatsWithNewMessages = async ({ userClient }) => {
                     return chatItem.last_permanent_item.timestamp > chatLastSeen
                 })
     
-                chatsWithNewMessage = moreChatsWithNewMessage.length > 0 
-                    ? moreChatsWithNewMessage.filter(chatItem => {
+                /*[
+                    ...chatsWithNewMessage, 
+                    ...moreChatsWithNewMessage.filter(chatItem => {
                         return !chatItem.muted && !chatItem.is_group && !chatItem.archived
                     }).map(threadItem => {
                         return {
@@ -114,6 +115,25 @@ exports.getAllChatsWithNewMessages = async ({ userClient }) => {
                             last_permanent_item:  threadItem.last_permanent_item
                         }
                     })
+                ]*/
+
+                chatsWithNewMessage = moreChatsWithNewMessage.length > 0 
+                    ? [
+                        ...moreChatsWithNewMessage.reduce((acc, chatItem) => {
+                            if(!chatItem.muted && !chatItem.is_group && !chatItem.archived) {
+                                acc.push({
+                                    thread_id: chatItem.thread_id,
+                                    items: chatItem.items,
+                                    read_state: chatItem.read_state,
+                                    inviter: chatItem.inviter,
+                                    last_seen_at: chatItem.last_seen_at,
+                                    last_permanent_item:  chatItem.last_permanent_item
+                                })
+                            }
+
+                            return acc
+                        }, chatsWithNewMessage)
+                      ]
                     : chatsWithNewMessage
         
                 if(moreChatsWithNewMessage.length >= 10) {
