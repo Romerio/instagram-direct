@@ -100,22 +100,6 @@ exports.getAllChatsWithNewMessages = async ({ userClient }) => {
     
                     return chatItem.last_permanent_item.timestamp > chatLastSeen
                 })
-    
-                /*[
-                    ...chatsWithNewMessage, 
-                    ...moreChatsWithNewMessage.filter(chatItem => {
-                        return !chatItem.muted && !chatItem.is_group && !chatItem.archived
-                    }).map(threadItem => {
-                        return {
-                            thread_id: threadItem.thread_id,
-                            items: threadItem.items,
-                            read_state: threadItem.read_state,
-                            inviter: threadItem.inviter,
-                            last_seen_at: threadItem.last_seen_at,
-                            last_permanent_item:  threadItem.last_permanent_item
-                        }
-                    })
-                ]*/
 
                 chatsWithNewMessage = moreChatsWithNewMessage.length > 0 
                     ? [
