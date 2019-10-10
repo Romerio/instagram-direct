@@ -3,17 +3,19 @@ const { IgApiClient } = require('instagram-private-api');
 const approveAllNewChats = async ({ userClient }) => {
     try {
         console.log('# approveAllNewChats')
-        const pendingFeed = await userClient.feed.directPending();
+        const directPending = userClient.feed.directPending()
+        console.log('- directPending')
+        console.log(directPending)
 
-        const items = await pendingFeed.items();
+        const items = await directPending.items()
+        console.log('- items')
+        console.log(items) // Conversas
 
-        console.log(items)
-        console.log('#')
-        console.log(pendingFeed.approveMultiple)
-        console.log(items.approveMultiple)
-        console.log(userClient.entity.approveMultiple)
-        console.log(userClient.feed.approveMultiple)
+        const thread_ids = items.map(item => item.thread_id)
+        console.log('- thread_ids')
+        console.log(thread_ids)
 
+        await ig.directThread.approveMultiple(thread_ids)
     } catch (error) {
         throw error
     }
