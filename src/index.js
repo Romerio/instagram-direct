@@ -78,6 +78,7 @@ exports.getAllNewChatMessages = async ({ userClient, thread }) => {
 
 /**
  * Buscar chats com novas mensagens
+ * se não existir last_seen_at[userClient.userData.pk]: pegar a última mensagem do chat
  * 
  */
 exports.getAllChatsWithNewMessages = async ({ userClient }) => {
@@ -139,7 +140,6 @@ exports.getAllChatsWithNewMessages = async ({ userClient }) => {
             await thread.markItemSeen(chatsWithNewMessage[0].last_permanent_item.item_id)
             // }, 5000)
         } else {
-            // Provavelmente pegar a primeira mensagem de cada chat
             console.log('# Não tem chat com nova mensagem')
         }
 
