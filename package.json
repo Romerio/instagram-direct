@@ -39,6 +39,7 @@
     "rimraf": "^2.6.3"
   },
   "dependencies": {
+    "async": "^2.5.0",
     "instagram-private-api": "^1.30.0"
   }
 }

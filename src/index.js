@@ -1,21 +1,25 @@
 const { IgApiClient } = require('instagram-private-api');
+const asyncLib = require('async')
+const promisify = require('util').promisify
 
 const approveAllNewChats = async ({ userClient }) => {
     try {
-        console.log('# approveAllNewChats')
+        //console.log('# approveAllNewChats')
         const directPending = userClient.feed.directPending()
-        console.log('- directPending')
-        console.log(directPending)
+        //console.log('- directPending')
+        //console.log(directPending)
 
         const items = await directPending.items()
-        console.log('- items')
-        console.log(items) // Conversas
+        //console.log('- items')
+        //console.log(items) // Conversas
 
         const thread_ids = items.map(item => item.thread_id)
-        console.log('- thread_ids')
-        console.log(thread_ids)
+        //console.log('- thread_ids')
+        //console.log(thread_ids)
 
-        await ig.directThread.approveMultiple(thread_ids)
+        await userClient.directThread.approveMultiple(thread_ids)
+
+        console.log('# approveAllNewChats')
     } catch (error) {
         throw error
     }
@@ -23,6 +27,9 @@ const approveAllNewChats = async ({ userClient }) => {
 
 exports.approveAllNewChats = approveAllNewChats
 
+/**
+ * userClient has userData now
+ */
 exports.authPlatform = async ({ username, password }) => {
     try {
         const ig = new IgApiClient();
@@ -30,8 +37,12 @@ exports.authPlatform = async ({ username, password }) => {
         ig.state.generateDevice(process.env.IG_USERNAME || username);
 
         await ig.simulate.preLoginFlow();
-        await ig.account.login(process.env.IG_USERNAME || username, process.env.IG_PASSWORD || password);
+        const loggedUser = await ig.account.login(process.env.IG_USERNAME || username, process.env.IG_PASSWORD || password);
         process.nextTick(async () => await ig.simulate.postLoginFlow());
+
+        ig.userData = {
+            pk: loggedUser.pk
+        }
 
         return ig
     } catch (error) {
@@ -52,7 +63,7 @@ exports.getChatWithNewMessages = async ({ userClient, lastMessageTimestamp }) =>
  * and, for each chat, fetch all new messages
  */
 
-exports.getAllNewChatMessages = async ({ userClient, lastMessageTimestamp }) => {
+exports.getAllNewChatMessages = async ({ userClient, thread }) => {
     try {
         const inboxFeed = ig.feed.directInbox();
         const threads = await inboxFeed.items();
@@ -69,42 +80,154 @@ exports.getAllNewChatMessages = async ({ userClient, lastMessageTimestamp }) => 
  * Buscar chats com novas mensagens
  * 
  */
-exports.getAllChatsWithNewMessages = async ({ userClient, timestamp }) => {
+exports.getAllChatsWithNewMessages = async ({ userClient }) => {
     try {
-        await approveAllNewChats({ userClient })
+        console.log('## getAllChatsWithNewMessages')
+        const inboxFeed = await userClient.feed.directInbox()
+        let threads = null
+        
+        let chatsWithNewMessage = []
+        let condiction = true
 
-        const inboxFeed = userClient.feed.directInbox();
-        const threads = await inboxFeed.items();
-
-        const hasChatWithNewMessage = threads.find(item => {
-            return parseInt(item.read_state, 10) === 1
-        })
-
-        console.log('# thread 0')
-        console.log(threads[0])
-        console.log('\n#\n')
-
-        const thread = await userClient.entity.directThread(threads[0].thread_id);
-
-        console.log(thread.approveMultiple)
-        console.log(userClient.entity.approveMultiple)
-        console.log(threads[0].approveMultiple)
-        console.log(inboxFeed.approveMultiple)
-
-        // await thread.markItemSeen(threads[0].last_permanent_item.item_id)
-        if(hasChatWithNewMessage) {
-            console.log('# Tem chat com nova mensagem')
-           // const thread = userClient.entity.directThread(threads[0].thread_id);
-        } else {
-            console.log('# Não tem chat com nova mensagem')
-
-            return threads
+        while(condiction) {
+            try {
+                console.log('# começou a processar os chats')
+                threads = await inboxFeed.items()
+    
+                const moreChatsWithNewMessage = threads.filter(chatItem => {
+                    const chatLastSeen = chatItem.last_seen_at[userClient.userData.pk].timestamp
+        
+                    return chatItem.last_permanent_item.timestamp > chatLastSeen && !chatItem.muted && !chatItem.is_group && !chatItem.archived
+                })
+    
+                console.log('# 0')
+                chatsWithNewMessage = moreChatsWithNewMessage.length > 0 
+                    ? moreChatsWithNewMessage.map(threadItem => {
+                        return {
+                            thread_id: threadItem.thread_id,
+                            items: threadItem.items,
+                            read_state: threadItem.read_state,
+                            inviter: threadItem.inviter,
+                            last_seen_at: threadItem.last_seen_at,
+                            last_permanent_item:  threadItem.last_permanent_item
+                        }
+                    })
+                    : chatsWithNewMessage
+    
+                console.log('# 1')
+    
+                if(moreChatsWithNewMessage.length >= 10) {
+                    console.log('# próxima página')
+                } else {
+                    console.log('# não chama próxima página')
+                    condiction = false
+                }
+            } catch (e) {
+                console.log(e)
+                condiction = false
+            }
         }
+
+        if(chatsWithNewMessage.length > 0) {
+            // Buscar as novas mensagens de cada chat com nova mensagem
+            console.log('# Tem chat com nova mensagem')
+            console.log(chatsWithNewMessage)
+            // const thread = userClient.entity.directThread(threads[0].thread_id);
+        } else {
+            // Provavelmente pegar a primeira mensagem de cada chat
+            console.log('# Não tem chat com nova mensagem')
+        }
+
+        return chatsWithNewMessage
     } catch (error) {
         throw error
     }
 }
 
+exports.getAllChatsWithNewMessages2 = ({ userClient }) => {
+    try {
+        console.log('## getAllChatsWithNewMessages')
+        let inboxFeed = null
+        let threads = null
+        
+        let chatsWithNewMessage = []
+        const stopLoopFlag = true
+        const continueLoopFlag = false
+    
+        asyncLib.doUntil(async (callbackFlow, callbackFlow2) => {
+            try {
+                console.log(callbackFlow, callbackFlow2)
+                console.log('# começou a processar os chats')
+    
+                if(!inboxFeed) inboxFeed = await userClient.feed.directInbox()
+                threads = await inboxFeed.items()
+    
+                const moreChatsWithNewMessage = threads.filter(chatItem => {
+                    const chatLastSeen = chatItem.last_seen_at[userClient.userData.pk].timestamp
+        
+                    return chatItem.last_permanent_item.timestamp > chatLastSeen
+                })
+    
+                console.log('# 0')
+                chatsWithNewMessage = moreChatsWithNewMessage.length > 0 
+                    ? moreChatsWithNewMessage.map(threadItem => {
+                        return {
+                            thread_id: threadItem.thread_id,
+                            items: threadItem.items,
+                            read_state: threadItem.read_state,
+                            inviter: threadItem.inviter,
+                            last_seen_at: threadItem.last_seen_at,
+                            last_permanent_item:  threadItem.last_permanent_item
+                        }
+                    })
+                    : chatsWithNewMessage
+    
+                console.log('# 1')
+    
+                if(moreChatsWithNewMessage.length >= 10) {
+                    console.log('# próxima página')
+                    return callbackFlow(null, continueLoopFlag)
+                }
+    
+                console.log('# 2')
+    
+                return callbackFlow(null, stopLoopFlag)
+            } catch (e) {
+                console.log(e)
+                return callbackFlow(null, stopLoopFlag)
+            }
+        }, 
+        loopFlagTest => loopFlagTest,
+        () => {
+            console.log('# terminou de processar os chats')
+    
+            /*if(chatsWithNewMessage[0]) {
+                const thread = await userClient.entity.directThread(chatsWithNewMessage[0].thread_id)
+    
+                setTimeout(async () => {
+                    // await thread.markItemSeen(chatsWithNewMessage[0].last_permanent_item.item_id)
+                }, 5000)
+            }*/
+    
+            if(chatsWithNewMessage.length > 0) {
+                // Buscar as novas mensagens de cada chat com nova mensagem
+                console.log('# Tem chat com nova mensagem')
+                console.log(chatsWithNewMessage)
+                // const thread = userClient.entity.directThread(threads[0].thread_id);
+            } else {
+                // Provavelmente pegar a primeira mensagem de cada chat
+                console.log('# Não tem chat com nova mensagem')
+            }
+    
+            // return callback(null)
+        })
+    } catch (error) {
+        throw error
+    }
+}
+
+// exports.getAllChatsWithNewMessages = getAllChatsWithNewMessages // promisify(getAllChatsWithNewMessages)
+    
 exports.sendNewChatMessage = async ({ userClient, type, content }) => {
     try {
 
