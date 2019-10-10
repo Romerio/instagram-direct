@@ -87,22 +87,26 @@ exports.getAllChatsWithNewMessages = async ({ userClient }) => {
         let threads = null
         
         let chatsWithNewMessage = []
-        let condiction = true
+        let continueLoopCondiction = true
 
-        while(condiction) {
+        while(continueLoopCondiction) {
             try {
                 console.log('# começou a processar os chats')
                 threads = await inboxFeed.items()
     
                 const moreChatsWithNewMessage = threads.filter(chatItem => {
+                    if(!chatItem.last_seen_at[userClient.userData.pk]) return true
+
                     const chatLastSeen = chatItem.last_seen_at[userClient.userData.pk].timestamp
-        
-                    return chatItem.last_permanent_item.timestamp > chatLastSeen && !chatItem.muted && !chatItem.is_group && !chatItem.archived
+    
+                    return chatItem.last_permanent_item.timestamp > chatLastSeen
                 })
     
                 console.log('# 0')
                 chatsWithNewMessage = moreChatsWithNewMessage.length > 0 
-                    ? moreChatsWithNewMessage.map(threadItem => {
+                    ? moreChatsWithNewMessage.filter(chatItem => {
+                        return !chatItem.muted && !chatItem.is_group && !chatItem.archived
+                    }).map(threadItem => {
                         return {
                             thread_id: threadItem.thread_id,
                             items: threadItem.items,
@@ -117,14 +121,14 @@ exports.getAllChatsWithNewMessages = async ({ userClient }) => {
                 console.log('# 1')
     
                 if(moreChatsWithNewMessage.length >= 10) {
-                    console.log('# próxima página')
+                    console.log(' - próxima página')
                 } else {
-                    console.log('# não chama próxima página')
-                    condiction = false
+                    console.log(' - não chama próxima página')
+                    continueLoopCondiction = false
                 }
             } catch (e) {
                 console.log(e)
-                condiction = false
+                continueLoopCondiction = false
             }
         }
 
@@ -132,7 +136,11 @@ exports.getAllChatsWithNewMessages = async ({ userClient }) => {
             // Buscar as novas mensagens de cada chat com nova mensagem
             console.log('# Tem chat com nova mensagem')
             console.log(chatsWithNewMessage)
-            // const thread = userClient.entity.directThread(threads[0].thread_id);
+
+            const thread = await userClient.entity.directThread(chatsWithNewMessage[0].thread_id)
+            //setTimeout(async () => {
+            await thread.markItemSeen(chatsWithNewMessage[0].last_permanent_item.item_id)
+            // }, 5000)
         } else {
             // Provavelmente pegar a primeira mensagem de cada chat
             console.log('# Não tem chat com nova mensagem')
