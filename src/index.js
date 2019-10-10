@@ -1,6 +1,4 @@
 const { IgApiClient } = require('instagram-private-api');
-const asyncLib = require('async')
-const promisify = require('util').promisify
 
 const approveAllNewChats = async ({ userClient }) => {
     try {
@@ -150,90 +148,6 @@ exports.getAllChatsWithNewMessages = async ({ userClient }) => {
     }
 }
 
-exports.getAllChatsWithNewMessages2 = ({ userClient }) => {
-    try {
-        console.log('## getAllChatsWithNewMessages')
-        let inboxFeed = null
-        let threads = null
-        
-        let chatsWithNewMessage = []
-        const stopLoopFlag = true
-        const continueLoopFlag = false
-    
-        asyncLib.doUntil(async (callbackFlow, callbackFlow2) => {
-            try {
-                console.log(callbackFlow, callbackFlow2)
-                console.log('# começou a processar os chats')
-    
-                if(!inboxFeed) inboxFeed = await userClient.feed.directInbox()
-                threads = await inboxFeed.items()
-    
-                const moreChatsWithNewMessage = threads.filter(chatItem => {
-                    const chatLastSeen = chatItem.last_seen_at[userClient.userData.pk].timestamp
-        
-                    return chatItem.last_permanent_item.timestamp > chatLastSeen
-                })
-    
-                console.log('# 0')
-                chatsWithNewMessage = moreChatsWithNewMessage.length > 0 
-                    ? moreChatsWithNewMessage.map(threadItem => {
-                        return {
-                            thread_id: threadItem.thread_id,
-                            items: threadItem.items,
-                            read_state: threadItem.read_state,
-                            inviter: threadItem.inviter,
-                            last_seen_at: threadItem.last_seen_at,
-                            last_permanent_item:  threadItem.last_permanent_item
-                        }
-                    })
-                    : chatsWithNewMessage
-    
-                console.log('# 1')
-    
-                if(moreChatsWithNewMessage.length >= 10) {
-                    console.log('# próxima página')
-                    return callbackFlow(null, continueLoopFlag)
-                }
-    
-                console.log('# 2')
-    
-                return callbackFlow(null, stopLoopFlag)
-            } catch (e) {
-                console.log(e)
-                return callbackFlow(null, stopLoopFlag)
-            }
-        }, 
-        loopFlagTest => loopFlagTest,
-        () => {
-            console.log('# terminou de processar os chats')
-    
-            /*if(chatsWithNewMessage[0]) {
-                const thread = await userClient.entity.directThread(chatsWithNewMessage[0].thread_id)
-    
-                setTimeout(async () => {
-                    // await thread.markItemSeen(chatsWithNewMessage[0].last_permanent_item.item_id)
-                }, 5000)
-            }*/
-    
-            if(chatsWithNewMessage.length > 0) {
-                // Buscar as novas mensagens de cada chat com nova mensagem
-                console.log('# Tem chat com nova mensagem')
-                console.log(chatsWithNewMessage)
-                // const thread = userClient.entity.directThread(threads[0].thread_id);
-            } else {
-                // Provavelmente pegar a primeira mensagem de cada chat
-                console.log('# Não tem chat com nova mensagem')
-            }
-    
-            // return callback(null)
-        })
-    } catch (error) {
-        throw error
-    }
-}
-
-// exports.getAllChatsWithNewMessages = getAllChatsWithNewMessages // promisify(getAllChatsWithNewMessages)
-    
 exports.sendNewChatMessage = async ({ userClient, type, content }) => {
     try {
 
