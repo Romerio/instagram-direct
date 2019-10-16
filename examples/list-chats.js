@@ -1,7 +1,8 @@
 const { 
     authPlatform,
     getAllChatsWithNewMessages,
-    approveAllNewChats
+    approveAllNewChats,
+    getAllNewMessages
 } = require('../src/index')
 
 const process = async () => {
@@ -9,7 +10,11 @@ const process = async () => {
         const userClient = await authPlatform({ username: 'koruja_contato', password: 'krjknbx84902'  })
         
         await approveAllNewChats({ userClient })
-        await getAllChatsWithNewMessages({ userClient })
+        const chatsWithNewMessage = await getAllChatsWithNewMessages({ userClient })
+        const allNewMessages = await getAllNewMessages({ userClient, chatsWithNewMessage })
+
+        console.log('## allNewMessages')
+        console.log(allNewMessages)
     } catch (error) {
         console.log(error)
     }

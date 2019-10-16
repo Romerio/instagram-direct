@@ -2,33 +2,21 @@ const { IgApiClient } = require('instagram-private-api');
 
 const approveAllNewChats = async ({ userClient }) => {
     try {
-        //console.log('# approveAllNewChats')
         const directPending = userClient.feed.directPending()
-        //console.log('- directPending')
-        //console.log(directPending)
-
         const items = await directPending.items()
-        //console.log('- items')
-        //console.log(items) // Conversas
 
         const thread_ids = items.map(item => item.thread_id)
-        //console.log('- thread_ids')
-        //console.log(thread_ids)
 
         await userClient.directThread.approveMultiple(thread_ids)
-
-        console.log('# approveAllNewChats')
     } catch (error) {
         throw error
     }
 }
 
-exports.approveAllNewChats = approveAllNewChats
-
 /**
  * userClient has userData now
  */
-exports.authPlatform = async ({ username, password }) => {
+const authPlatform = async ({ username, password }) => {
     try {
         const ig = new IgApiClient();
 
@@ -48,29 +36,70 @@ exports.authPlatform = async ({ username, password }) => {
     }
 }
 
-exports.getChatWithNewMessages = async ({ userClient, lastMessageTimestamp }) => {
-    try {
-        
-    } catch (error) {
-        throw error
-    }
-}
-
 /**
  * Search all chats with new messages
  * and, for each chat, fetch all new messages
  */
 
-exports.getAllNewChatMessages = async ({ userClient, thread }) => {
+const getAllNewChatMessages = async ({ userClient, chatData }) => {
     try {
-        const inboxFeed = ig.feed.directInbox();
-        const threads = await inboxFeed.items();
+        if(!chatData || !chatData.thread_id) return []
+
+        const chatLastSeen = chatData.last_seen_at[userClient.userData.pk] ? chatData.last_seen_at[userClient.userData.pk].timestamp : null
+
+        // Esse chat nunca foi processado antes, não tem referência de última mensagem que pegou
+        // Retorna apenas a última mensagem da conversa
+        if(!chatLastSeen) {
+            return [chatData.items[0]]
+        }
+
+        const firstPageOfMessages = chatData.items.filter(messageItem => {
+            return messageItem.user_id !== userClient.userData.pk && messageItem.timestamp > chatLastSeen
+        })
+
+        // Nem todas as mensagens da primeira página são novas, então não precisa pegar próxima página
+        if(firstPageOfMessages.length < 10) {
+            return firstPageOfMessages
+        }
+
+        // Necessário pegar novas páginas:
+        let newMessages = [...firstPageOfMessages]
+
+        const chatToProcess = await userClient.feed.directThread(chatData);
+
+        let continueLoopCondiction = true
+        let currentPage = []
+
+        // skip first page
+        await chatToProcess.items()
         
-        await thread.broadcastPhoto({
-            file: readFileSync('./tools/images/original.jpg'),
-        });
+        while(continueLoopCondiction) {
+            try {
+                currentPage = await chatToProcess.items()
+            
+                const moreNewMessages = currentPage.filter(messageItem => {
+                    return messageItem.user_id !== userClient.userData.pk && messageItem.timestamp > chatLastSeen
+                })
+
+                if(moreNewMessages.length > 0) {
+                    newMessages = [
+                        ...newMessages,
+                        ...moreNewMessages
+                    ]
+                }
+
+                if(moreNewMessages.length < 10) {
+                    continueLoopCondiction = false
+                }
+            } catch (e) {
+                continueLoopCondiction = false
+            }
+        }
+
+        return newMessages
     } catch (error) {
-        throw error
+        console.log(error)
+        return []
     }
 }
 
@@ -79,9 +108,9 @@ exports.getAllNewChatMessages = async ({ userClient, thread }) => {
  * se não existir last_seen_at[userClient.userData.pk]: pegar a última mensagem do chat
  * 
  */
-exports.getAllChatsWithNewMessages = async ({ userClient }) => {
+
+ const getAllChatsWithNewMessages = async ({ userClient }) => {
     try {
-        console.log('## getAllChatsWithNewMessages')
         const inboxFeed = await userClient.feed.directInbox()
         let threads = null
         
@@ -90,7 +119,6 @@ exports.getAllChatsWithNewMessages = async ({ userClient }) => {
 
         while(continueLoopCondiction) {
             try {
-                console.log('# começou a processar os chats')
                 threads = await inboxFeed.items()
     
                 const moreChatsWithNewMessage = threads.filter(chatItem => {
@@ -120,29 +148,12 @@ exports.getAllChatsWithNewMessages = async ({ userClient }) => {
                       ]
                     : chatsWithNewMessage
         
-                if(moreChatsWithNewMessage.length >= 10) {
-                    console.log(' - próxima página')
-                } else {
-                    console.log(' - não chama próxima página')
+                if(moreChatsWithNewMessage.length < 10) {
                     continueLoopCondiction = false
                 }
             } catch (e) {
-                console.log(e)
                 continueLoopCondiction = false
             }
-        }
-
-        if(chatsWithNewMessage.length > 0) {
-            // Buscar as novas mensagens de cada chat com nova mensagem
-            console.log('# Tem chat com nova mensagem')
-            console.log(chatsWithNewMessage)
-
-            const thread = await userClient.entity.directThread(chatsWithNewMessage[0].thread_id)
-            //setTimeout(async () => {
-            await thread.markItemSeen(chatsWithNewMessage[0].last_permanent_item.item_id)
-            // }, 5000)
-        } else {
-            console.log('# Não tem chat com nova mensagem')
         }
 
         return chatsWithNewMessage
@@ -152,10 +163,56 @@ exports.getAllChatsWithNewMessages = async ({ userClient }) => {
     }
 }
 
-exports.sendNewChatMessage = async ({ userClient, type, content }) => {
+const getAllNewMessages = async ({ userClient, chatsWithNewMessage }) => {
     try {
+        let allNewMessages = []
 
+        if(chatsWithNewMessage.length > 0) {
+            for (const chatItem of chatsWithNewMessage) {
+                const newMessages = await getAllNewChatMessages({ userClient, chatData: chatItem })
+
+                if(newMessages.length > 0) {
+                    allNewMessages = [
+                        ...allNewMessages,
+                        ...newMessages.map(messagemItem => {
+                            messagemItem.username = chatItem.inviter.username
+
+                            return messagemItem
+                        })
+                    ]
+
+                    // chatItem.newMessages = newMessages
+                    // Depois de buscar as novas mensagens marca o chat como visto
+                    const thread = await userClient.entity.directThread(chatItem.thread_id)
+                    await thread.markItemSeen(chatItem.last_permanent_item.item_id)
+                }
+
+            }
+        }
+
+        return allNewMessages
+    } catch (error) {
+        console.log(error)
+        throw error
+    }
+}
+
+const sendNewChatMessage = async ({ userClient, type, content }) => {
+    try {
+        const inboxFeed = ig.feed.directInbox();
+        const threads = await inboxFeed.items();
+        
+        await thread.broadcastPhoto({
+            file: readFileSync('./tools/images/original.jpg'),
+        });
     } catch (error) {
         throw error
     }
 }
+
+exports.getAllNewMessages = getAllNewMessages
+exports.authPlatform = authPlatform
+exports.approveAllNewChats = approveAllNewChats
+exports.getAllNewChatMessages = getAllNewChatMessages
+exports.getAllChatsWithNewMessages = getAllChatsWithNewMessages
+exports.sendNewChatMessage = sendNewChatMessage
