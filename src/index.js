@@ -53,17 +53,29 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
             return [chatData.items[0]]
         }
 
-        const firstPageOfMessages = chatData.items.filter(messageItem => {
+        /*const firstPageOfMessages = chatData.items.filter(messageItem => {
             return messageItem.user_id !== userClient.userData.pk && messageItem.timestamp > chatLastSeen
-        })
+        })*/
 
-        // Nem todas as mensagens da primeira página são novas, então não precisa pegar próxima página
-        if(firstPageOfMessages.length < 10) {
-            return firstPageOfMessages
+        const firstPageOfMessages = chatData.items.reduce((acc, messageItem) => {
+            if(messageItem.user_id !== userClient.userData.pk) {
+                acc.messagesFromInviterCounter = acc.messagesFromInviterCounter + 1
+
+                if(messageItem.timestamp > chatLastSeen) {
+                    acc.newMessages.push(messageItem)
+                }
+            }
+
+            return acc
+        }, { messagesFromInviterCounter: 0, newMessages: []})
+
+        // Se o número de mensagens novas é menor do que o número total de mensagens do interlocutor, não pega próxima página
+        if(firstPageOfMessages.newMessages.length < firstPageOfMessages.messagesFromInviterCounter) {
+            return firstPageOfMessages.newMessages
         }
 
         // Necessário pegar novas páginas:
-        let newMessages = [...firstPageOfMessages]
+        let newMessages = [...firstPageOfMessages.newMessages]
 
         const chatToProcess = await userClient.feed.directThread(chatData);
 
@@ -77,18 +89,32 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
             try {
                 currentPage = await chatToProcess.items()
             
-                const moreNewMessages = currentPage.filter(messageItem => {
+                /*const moreNewMessages = currentPage.filter(messageItem => {
                     return messageItem.user_id !== userClient.userData.pk && messageItem.timestamp > chatLastSeen
-                })
+                })*/
 
-                if(moreNewMessages.length > 0) {
+                const moreNewMessages = currentPage.reduce((acc, messageItem) => {
+                    if(messageItem.user_id !== userClient.userData.pk) {
+                        acc.messagesFromInviterCounter = acc.messagesFromInviterCounter + 1
+        
+                        if(messageItem.timestamp > chatLastSeen) {
+                            acc.newMessages.push(messageItem)
+                        }
+                    }
+        
+                    return acc
+                }, { messagesFromInviterCounter: 0, newMessages: []})
+
+                if(moreNewMessages.newMessages.length > 0) {
                     newMessages = [
                         ...newMessages,
-                        ...moreNewMessages
+                        ...moreNewMessages.newMessages
                     ]
                 }
 
-                if(moreNewMessages.length < 10) {
+                // console.log('## ', moreNewMessages.newMessages.length, moreNewMessages.messagesFromInviterCounter, moreNewMessages.newMessages.length < moreNewMessages.messagesFromInviterCounter)
+
+                if(moreNewMessages.newMessages.length < moreNewMessages.messagesFromInviterCounter) {
                     continueLoopCondiction = false
                 }
             } catch (e) {
@@ -96,7 +122,7 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
             }
         }
 
-        await chatToProcess.markItemSeen(chatData.last_permanent_item.item_id)
+        // await chatToProcess.markItemSeen(chatData.last_permanent_item.item_id)
 
         return newMessages
     } catch (error) {
@@ -182,9 +208,13 @@ const getAllNewMessages = async ({ userClient, chatsWithNewMessage }) => {
                             return messagemItem
                         })
                     ]
+
+                    const thread = await userClient.entity.directThread(chatItem.thread_id)
+                    await thread.markItemSeen(chatItem.last_permanent_item.item_id)
                 }
 
             }
+            
         }
 
         return allNewMessages

@@ -13,7 +13,7 @@ const process = async () => {
         const chatsWithNewMessage = await getAllChatsWithNewMessages({ userClient })
         const allNewMessages = await getAllNewMessages({ userClient, chatsWithNewMessage })
 
-        console.log('## allNewMessages')
+        console.log('## allNewMessages', allNewMessages.length)
         console.log(allNewMessages)
     } catch (error) {
         console.log(error)
