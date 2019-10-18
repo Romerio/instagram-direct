@@ -96,6 +96,8 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
             }
         }
 
+        await chatToProcess.markItemSeen(chatData.last_permanent_item.item_id)
+
         return newMessages
     } catch (error) {
         console.log(error)
@@ -180,11 +182,6 @@ const getAllNewMessages = async ({ userClient, chatsWithNewMessage }) => {
                             return messagemItem
                         })
                     ]
-
-                    // chatItem.newMessages = newMessages
-                    // Depois de buscar as novas mensagens marca o chat como visto
-                    const thread = await userClient.entity.directThread(chatItem.thread_id)
-                    await thread.markItemSeen(chatItem.last_permanent_item.item_id)
                 }
 
             }
