@@ -159,6 +159,7 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
                     return chatItem.last_permanent_item.timestamp > chatLastSeen
                 })
 
+                // #TO-DO: Passar para dentro do serviço que abstrai a api do instagram, lá serão baixadas as mídias
                 //console.log('## voice_media')
                 //console.log(threads[0].items[0].voice_media)
                 // baixando imagem do instagram
