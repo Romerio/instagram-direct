@@ -1,0 +1,121 @@
+[
+    {
+        item_id: '28992112806592644126482172737486848',
+        user_id: 20719596295,
+        timestamp: '1571665584492628',
+        item_type: 'voice_media',
+        voice_media: {
+            media: {
+                id: '2159609888745879171_20719596295',
+                media_type: 11,
+                product_type: 'direct_audio',
+                audio: {
+                audio_src: 'https://instagram.ffor4-2.fna.fbcdn.net/vp/0f384402be6ba49042e655e74abe60b1/5DAF5A31/t69.10824-16/73558329_138548094147020_3800685526111266776_n.mp4.m4a?_nc_ht=instagram.ffor4-2.fna.fbcdn.net',
+                duration: 2183,
+                waveform_data: [Array],
+                waveform_sampling_frequency_hz: 10
+                },
+                organic_tracking_token: 'eyJ2ZXJzaW9uIjo1LCJwYXlsb2FkIjp7ImlzX2FuYWx5dGljc190cmFja2VkIjp0cnVlLCJ1dWlkIjoiNmI3N2ZhNTczODFjNDMzNzg3ZGFkMzZlYmJiNzQ2YTcyMTU5NjA5ODg4NzQ1ODc5MTcxIiwic2VydmVyX3Rva2VuIjoiMTU3MTY2NTkwNzg2M3wyMTU5NjA5ODg4NzQ1ODc5MTcxfDIwNTg0NDcwMzc1fDk1MDA1NWQ5YmRiNmFhMGEyM2RjYjg1ZTZhYWNkMGI2NjM2MzYzMzQzNTIyZDQzNzVhMjllYzhmOWUwM2Q5ZjYifSwic2lnbmF0dXJlIjoiIn0=',
+                user: {
+                pk: 20719596295,
+                friendship_status: [Object],
+                username: 'kinbox.koruja'
+                }
+            },
+            seen_user_ids: [],
+            view_mode: 'permanent',
+            seen_count: 0,
+            replay_expiring_at_us: null
+        }
+    },
+  {
+    item_id: '28992107538325926946143274398646272',
+    user_id: 20584470375,
+    timestamp: '1571665298899317',
+    item_type: 'media',
+    media: {
+        id: '2159607511976482389',
+        image_versions2: {
+            candidates: [
+                {
+                width: 620,
+                height: 400,
+                url: 'https://instagram.ffor4-1.fna.fbcdn.net/v/t51.2885-15/e35/72159716_1038473803187705_3994867866825314975_n.jpg?_nc_ht=instagram.ffor4-1.fna.fbcdn.net&_nc_cat=105&oh=ef6ce59c9846a8454008375aeaa4d65c&oe=5E49C7F0'
+                },
+                {
+                width: 320,
+                height: 320,
+                url: 'https://instagram.ffor4-1.fna.fbcdn.net/v/t51.2885-15/e35/s320x320/72159716_1038473803187705_3994867866825314975_n.jpg?_nc_ht=instagram.ffor4-1.fna.fbcdn.net&_nc_cat=105&oh=e2fc27e931c5b18f2667ec1857f14792&oe=5E4688B7'
+                }
+            ]
+        },
+        original_width: 620,
+        original_height: 400,
+        media_type: 1
+    },
+    client_context: '55016496-3474-5692-8329-30cc3af7a6f6'
+  },
+  {
+    item_id: '28992105147346840400678346236624896',
+    user_id: 20584470375,
+    timestamp: '1571665169284081',
+    item_type: 'media',
+    media: {
+      id: '2159606424561206479',
+      image_versions2: [Object],
+      original_width: 620,
+      original_height: 400,
+      media_type: 1
+    },
+    client_context: '4abc4ec1-0411-5c64-84f2-d01b15c66d7c'
+  },
+  {
+    item_id: '28992058470105856845452139542085632',
+    user_id: 20719596295,
+    timestamp: '1571662638905777',
+    item_type: 'text',
+    text: 'Teste 2'
+  },
+  {
+    item_id: '28992050333649885929250590912675840',
+    user_id: 20719596295,
+    timestamp: '1571662197827615',
+    item_type: 'text',
+    text: 'Teste 1'
+  },
+  {
+    item_id: '28986471038163018718563534477721600',
+    user_id: 20719596295,
+    timestamp: '1571359743613225',
+    item_type: 'text',
+    text: 'Mensagem do Kinbox - teste 36'
+  },
+  {
+    item_id: '28986470852194234374796945330798592',
+    user_id: 20719596295,
+    timestamp: '1571359733531837',
+    item_type: 'text',
+    text: 'Mensagem do Kinbox - teste 35'
+  },
+  {
+    item_id: '28986469671879056564074253247315968',
+    user_id: 20719596295,
+    timestamp: '1571359669546823',
+    item_type: 'text',
+    text: 'Mensagem do Kinbox - 34'
+  },
+  {
+    item_id: '28986465428578815380035269344362496',
+    user_id: 20719596295,
+    timestamp: '1571359439517056',
+    item_type: 'text',
+    text: 'Mensagem do Kinbox - teste 33'
+  },
+  {
+    item_id: '28986464393100720527748998853820416',
+    user_id: 20719596295,
+    timestamp: '1571359383383676',
+    item_type: 'text',
+    text: 'Mensagem do Kinbox - teste 32'
+  }
+]

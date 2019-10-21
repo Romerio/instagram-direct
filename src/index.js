@@ -1,4 +1,6 @@
-const { IgApiClient } = require('instagram-private-api');
+const { IgApiClient } = require('instagram-private-api')
+const request = require('request').defaults({ encoding: null })
+const { readFileSync, writeFileSync } = require('fs')
 
 const approveAllNewChats = async ({ userClient }) => {
     try {
@@ -157,6 +159,25 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
                     return chatItem.last_permanent_item.timestamp > chatLastSeen
                 })
 
+                //console.log('## voice_media')
+                //console.log(threads[0].items[0].voice_media)
+                // baixando imagem do instagram
+                /*console.log('## image')
+                console.log(threads[0].items[0])
+                console.log('\n## image_versions2')
+                console.log(threads[0].items[0].media.image_versions2)
+
+                const fileData = await new Promise((resolve, reject) => {
+                    request.get(threads[0].items[0].media.image_versions2.candidates[0].url, (error, response, body) => {
+                        if (!error && response.statusCode === 200) {        
+                            return resolve(body)
+                        }
+                        return reject(error)
+                    })
+                })
+
+                writeFileSync("./examples/images/file-teste.jpg", fileData);*/
+
                 chatsWithNewMessage = moreChatsWithNewMessage.length > 0 
                     ? [
                         ...moreChatsWithNewMessage.reduce((acc, chatItem) => {
@@ -224,14 +245,40 @@ const getAllNewMessages = async ({ userClient, chatsWithNewMessage }) => {
     }
 }
 
-const sendNewChatMessage = async ({ userClient, type, content }) => {
+const sendNewChatMessage = async ({ userClient, type, recipient_user_id , content }) => {
     try {
-        const inboxFeed = ig.feed.directInbox();
-        const threads = await inboxFeed.items();
-        
-        await thread.broadcastPhoto({
-            file: readFileSync('./tools/images/original.jpg'),
-        });
+        const thread = userClient.entity.directThread([recipient_user_id.toString()]);
+
+        switch (type) {
+            case 'text':
+                await thread.broadcastText(content)
+                break
+            case 'image':
+                const base64image = await new Promise((resolve, reject) => {
+                    request.get(content, (error, response, body) => {
+                        if (!error && response.statusCode === 200) {        
+                            return resolve(body)
+                        }
+                        return reject(error)
+                    })
+                })
+                
+                await thread.broadcastPhoto({
+                    file: base64image,
+                })
+                break
+            case 'link':
+                await thread.broadcastLink(content, [content])
+                break
+            /*case 'audio':
+                await thread.broadcast({
+                    video: readFileSync(content),
+                    file: readFileSync(content),
+                })
+                break*/
+            default:
+                break
+        }
     } catch (error) {
         throw error
     }

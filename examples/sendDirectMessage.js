@@ -31,6 +31,7 @@ const execTest = async () => {
         console.log(userId)
 
         const thread = ig.entity.directThread([userId.toString()]);
+        
         await thread.broadcastText('Mensagem 2 - koruja_contato');
 
         await thread.broadcastPhoto({
