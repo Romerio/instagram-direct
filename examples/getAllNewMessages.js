@@ -16,19 +16,25 @@ const process = async () => {
 
         
         // Enviando imagem com sucesso
-        /*await sendNewChatMessage({ 
+        await sendNewChatMessage({ 
+            userClient, 
+            recipient_user_id: '20719596295', 
+            content: `Testando envio de imagem - ${(new Date()).getTime()}` 
+        })
+
+        await sendNewChatMessage({ 
             userClient, 
             type: 'image', 
             recipient_user_id: '20719596295', 
             content: 'http://s2.glbimg.com/3sfuZiC5CGOQHoppAVgRpW3GHXE=/s.glbimg.com/jo/g1/f/original/2016/05/11/instagram-logo-g1.jpg' 
-        })*/
+        })
         
-        await sendNewChatMessage({ 
+        /*await sendNewChatMessage({ 
             userClient, 
             type: 'audio', 
             recipient_user_id: '20719596295', 
             content: './examples/audios/ble-ble-ble-teste.mp4' 
-        })
+        })*/
 
         console.log('## allNewMessages', allNewMessages.length)
         console.log(allNewMessages)

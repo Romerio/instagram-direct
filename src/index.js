@@ -245,7 +245,7 @@ const getAllNewMessages = async ({ userClient, chatsWithNewMessage }) => {
     }
 }
 
-const sendNewChatMessage = async ({ userClient, type, recipient_user_id , content }) => {
+const sendNewChatMessage = async ({ userClient, type = 'text', recipient_user_id , content }) => {
     try {
         const thread = userClient.entity.directThread([recipient_user_id.toString()]);
 
