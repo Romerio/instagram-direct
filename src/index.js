@@ -270,6 +270,20 @@ const sendNewChatMessage = async ({ userClient, type = 'text', recipient_user_id
             case 'link':
                 await thread.broadcastLink(content, [content])
                 break
+            case 'link':
+                const base64video = await new Promise((resolve, reject) => {
+                    request.get(content, (error, response, body) => {
+                        if (!error && response.statusCode === 200) {        
+                            return resolve(body)
+                        }
+                        return reject(error)
+                    })
+                })
+
+                await thread.broadcastVideo({
+                    video: base64video
+                })
+                break
             /*case 'audio':
                 await thread.broadcast({
                     video: readFileSync(content),
