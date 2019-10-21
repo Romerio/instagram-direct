@@ -33,6 +33,10 @@ const execTest = async () => {
         const thread = ig.entity.directThread([userId.toString()]);
         await thread.broadcastText('Mensagem 2 - koruja_contato');
 
+        await thread.broadcastPhoto({
+            file: readFileSync('./tools/images/original.jpg'),
+        })
+
     } catch (error) {
         console.log('- error')
         console.log(error)

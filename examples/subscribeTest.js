@@ -25,13 +25,20 @@ const execTest = async () => {
 
         const inboxFeed = ig.feed.directInbox();
         console.log('- inboxFeed')
-        console.log(inboxFeed)
+        // console.log(inboxFeed)
 
         const threads = await inboxFeed.items();
         console.log('- threads')
-        console.log(threads) // Conversas
-        
-        inboxFeed.items$.subscribe(
+        // console.log(threads) // Conversas
+
+        const chatToProcess = await ig.feed.directThread(threads[0]);
+        console.log('## s ------')
+        console.log(chatToProcess.items.subscribe)
+        console.log(chatToProcess.items$)
+        console.log(chatToProcess.items$.subscribe)
+        console.log('## e ------')
+
+        chatToProcess.items$.subscribe(
             data => {
                 console.log('- nova mensagem')
                 console.log(data)
@@ -46,3 +53,5 @@ const execTest = async () => {
 }
 
 execTest()
+
+process.stdin.resume()

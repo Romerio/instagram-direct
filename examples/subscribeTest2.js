@@ -31,6 +31,14 @@ const execTest = async () => {
         console.log('- threads')
         console.log(threads) // Conversas
         
+        inboxFeed.items$.subscribe(
+            data => {
+                console.log('- nova conversa')
+                console.log(data)
+            },
+            error => console.error(error),
+            () => console.log('Complete!'),
+          );
     } catch (error) {
         console.log('- error')
         console.log(error)
@@ -38,3 +46,5 @@ const execTest = async () => {
 }
 
 execTest()
+
+process.stdin.resume()
