@@ -4,7 +4,7 @@ const {
     approveAllNewChats,
     getAllNewMessages,
     sendNewChatMessage
-} = require('../src/index')
+} = require('../src/instagram-direct')
 
 const process = async () => {
     try {
@@ -13,21 +13,22 @@ const process = async () => {
         await approveAllNewChats({ userClient })
         const chatsWithNewMessage = await getAllChatsWithNewMessages({ userClient })
         const allNewMessages = await getAllNewMessages({ userClient, chatsWithNewMessage })
-
         
-        // Enviando imagem com sucesso
+        /*
+        // Enviando texto com sucesso
         await sendNewChatMessage({ 
             userClient, 
             recipient_user_id: '20719596295', 
             content: `Testando envio de imagem - ${(new Date()).getTime()}` 
         })
 
+        // Enviando imagem com sucesso
         await sendNewChatMessage({ 
             userClient, 
             type: 'image', 
             recipient_user_id: '20719596295', 
             content: 'http://s2.glbimg.com/3sfuZiC5CGOQHoppAVgRpW3GHXE=/s.glbimg.com/jo/g1/f/original/2016/05/11/instagram-logo-g1.jpg' 
-        })
+        })*/
         
         /*await sendNewChatMessage({ 
             userClient, 
