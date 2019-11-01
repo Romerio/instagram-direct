@@ -1,0 +1,5 @@
+challenge / checkpoint.example.ts
+https://github.com/dilame/instagram-private-api/blob/master/examples/checkpoint.example.ts
+
+session
+https://github.com/dilame/instagram-private-api/blob/master/examples/session.example.ts
