@@ -11,9 +11,16 @@ class KinboxDirect {
         this.userClients = {}
     }
 
-    async logIn({}) {
+    async logIn({ username, password }) {
         try {
-            
+            if(!username)  throw new Error('username is required')
+            if(!password)  throw new Error('password is required')
+
+            const userClient= await authPlatform({ username, password })
+
+            this.userClients[sender] = userClient
+
+            return true
         } catch (error) {
             throw error
         }
@@ -30,9 +37,7 @@ class KinboxDirect {
     async verifyIfIsAuthenticated({ sender }) {
         try {
             if(!this.userClients[sender]) {
-                const workspacePlatform = await get({ identifier: sender })
-
-                this.userClients[sender] = await authPlatform({ username, password })
+                throw new Error('Conta desconectada. Necessário realizar o login.')
             }
         } catch (error) {
             throw error
@@ -61,6 +66,10 @@ class KinboxDirect {
             if(!recipient)  throw new Error('recipient is required')
             if(!content)  throw new Error('content is required')
             if(!workspaceId)  throw new Error('workspaceId is required')
+
+            if(!this.userClients[sender]) {
+                throw new Error('Conta desconectada. Necessário realizar o login.')
+            }
 
             const message = obj.reduce((text, word) => {
                 try {

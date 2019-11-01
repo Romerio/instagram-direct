@@ -20,13 +20,13 @@ const approveAllNewChats = async ({ userClient }) => {
  */
 const authPlatform = async ({ username, password }) => {
     try {
-        const ig = new IgApiClient();
+        const ig = new IgApiClient()
 
-        ig.state.generateDevice(process.env.IG_USERNAME || username);
+        ig.state.generateDevice(process.env.IG_USERNAME || username)
 
-        await ig.simulate.preLoginFlow();
-        const loggedUser = await ig.account.login(process.env.IG_USERNAME || username, process.env.IG_PASSWORD || password);
-        process.nextTick(async () => await ig.simulate.postLoginFlow());
+        await ig.simulate.preLoginFlow()
+        const loggedUser = await ig.account.login(process.env.IG_USERNAME || username, process.env.IG_PASSWORD || password)
+        process.nextTick(async () => await ig.simulate.postLoginFlow())
 
         ig.userData = {
             pk: loggedUser.pk
@@ -79,7 +79,7 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
         // Necessário pegar novas páginas:
         let newMessages = [...firstPageOfMessages.newMessages]
 
-        const chatToProcess = await userClient.feed.directThread(chatData);
+        const chatToProcess = await userClient.feed.directThread(chatData)
 
         let continueLoopCondiction = true
         let currentPage = []
@@ -271,7 +271,7 @@ const sendNewChatMessage = async ({ userClient, type = 'text', recipient_user_id
             case 'link':
                 await thread.broadcastLink(content, [content])
                 break
-            case 'link':
+            case 'video':
                 const base64video = await new Promise((resolve, reject) => {
                     request.get(content, (error, response, body) => {
                         if (!error && response.statusCode === 200) {        
@@ -299,6 +299,46 @@ const sendNewChatMessage = async ({ userClient, type = 'text', recipient_user_id
     }
 }
 
+const getSession = async ({ userClient }) => {
+    try {
+        const cookies = await userClient.state.serializeCookieJar()
+
+        const state = {
+            deviceString: userClient.state.deviceString,
+            deviceId: userClient.state.deviceId,
+            uuid: userClient.state.uuid,
+            phoneId: userClient.state.phoneId,
+            adid: userClient.state.adid,
+            build: userClient.state.build,
+        }
+
+        return { cookies, state }
+    } catch (error) {
+        throw error
+    }
+}
+
+const restoreSession = async ({ cookies, state }) => {
+    try {
+        const ig = new IgApiClient()
+
+        await ig.state.deserializeCookieJar(JSON.stringify(cookies))
+        
+        ig.state.deviceString = state.deviceString
+        ig.state.deviceId = state.deviceId
+        ig.state.uuid = state.uuid
+        ig.state.phoneId = state.phoneId
+        ig.state.adid = state.adid
+        ig.state.build = state.build
+
+        return ig
+    } catch (error) {
+        throw error
+    }
+}
+
+exports.getSession = getSession
+exports.restoreSession = restoreSession
 exports.getAllNewMessages = getAllNewMessages
 exports.authPlatform = authPlatform
 exports.approveAllNewChats = approveAllNewChats

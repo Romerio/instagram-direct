@@ -40,8 +40,10 @@
   },
   "dependencies": {
     "async": "^2.5.0",
+    "bluebird": "^3.7.1",
     "express": "^4.17.1",
-    "instagram-private-api": "^1.31.0",
+    "inquirer": "^7.0.0",
+    "instagram-private-api": "^1.33.0",
     "request": "^2.88.0"
   }
 }
