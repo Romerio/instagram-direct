@@ -9,11 +9,13 @@ const {
 } = require('../instagram-direct')
 
 class KinboxDirect {
-    constructor({ storeWorkspaceSession, getWorkspaceSession }) {
+    constructor({ storeWorkspaceSession, getWorkspaceSession, sendMessageToWorkspace }) {
         this.userClients = {}
 
         this.storeWorkspaceSession = storeWorkspaceSession
         this.getWorkspaceSession = getWorkspaceSession
+        this.getWorkspaceSession = getWorkspaceSession
+        this.sendMessageToWorkspace = sendMessageToWorkspace
     }
 
     // #TO-DO: fazer procedimento para baixar mídia da mensage
@@ -152,7 +154,10 @@ class KinboxDirect {
 
     async saveMessages({ }) {
         try {
-            
+
+            await this.sendMessageToWorkspace({
+
+            })
         } catch (error) {
             throw error
         }
