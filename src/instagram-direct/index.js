@@ -28,7 +28,7 @@ const authPlatform = async ({ username, password }) => {
         const loggedUser = await ig.account.login(process.env.IG_USERNAME || username, process.env.IG_PASSWORD || password)
         process.nextTick(async () => await ig.simulate.postLoginFlow())
 
-        ig.userData = {
+        ig.state.userData = {
             pk: loggedUser.pk
         }
 
@@ -47,7 +47,7 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
     try {
         if(!chatData || !chatData.thread_id) return []
 
-        const chatLastSeen = chatData.last_seen_at[userClient.userData.pk] ? chatData.last_seen_at[userClient.userData.pk].timestamp : null
+        const chatLastSeen = chatData.last_seen_at[userClient.state.userData.pk] ? chatData.last_seen_at[userClient.state.userData.pk].timestamp : null
 
         // Esse chat nunca foi processado antes, não tem referência de última mensagem que pegou
         // Retorna apenas a última mensagem da conversa
@@ -56,11 +56,11 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
         }
 
         /*const firstPageOfMessages = chatData.items.filter(messageItem => {
-            return messageItem.user_id !== userClient.userData.pk && messageItem.timestamp > chatLastSeen
+            return messageItem.user_id !== userClient.state.userData.pk && messageItem.timestamp > chatLastSeen
         })*/
 
         const firstPageOfMessages = chatData.items.reduce((acc, messageItem) => {
-            if(messageItem.user_id !== userClient.userData.pk) {
+            if(messageItem.user_id !== userClient.state.userData.pk) {
                 acc.messagesFromInviterCounter = acc.messagesFromInviterCounter + 1
 
                 if(messageItem.timestamp > chatLastSeen) {
@@ -92,11 +92,11 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
                 currentPage = await chatToProcess.items()
             
                 /*const moreNewMessages = currentPage.filter(messageItem => {
-                    return messageItem.user_id !== userClient.userData.pk && messageItem.timestamp > chatLastSeen
+                    return messageItem.user_id !== userClient.state.userData.pk && messageItem.timestamp > chatLastSeen
                 })*/
 
                 const moreNewMessages = currentPage.reduce((acc, messageItem) => {
-                    if(messageItem.user_id !== userClient.userData.pk) {
+                    if(messageItem.user_id !== userClient.state.userData.pk) {
                         acc.messagesFromInviterCounter = acc.messagesFromInviterCounter + 1
         
                         if(messageItem.timestamp > chatLastSeen) {
@@ -135,7 +135,7 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
 
 /**
  * Buscar chats com novas mensagens
- * se não existir last_seen_at[userClient.userData.pk]: pegar a última mensagem do chat
+ * se não existir last_seen_at[userClient.state.userData.pk]: pegar a última mensagem do chat
  * 
  */
 
@@ -152,9 +152,9 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
                 threads = await inboxFeed.items()
     
                 const moreChatsWithNewMessage = threads.filter(chatItem => {
-                    if(!chatItem.last_seen_at[userClient.userData.pk]) return true
+                    if(!chatItem.last_seen_at[userClient.state.userData.pk]) return true
 
-                    const chatLastSeen = chatItem.last_seen_at[userClient.userData.pk].timestamp
+                    const chatLastSeen = chatItem.last_seen_at[userClient.state.userData.pk].timestamp
     
                     return chatItem.last_permanent_item.timestamp > chatLastSeen
                 })
