@@ -2,7 +2,7 @@ const { IgApiClient, IgCheckpointError } = require('instagram-private-api')
 const Bluebird = require('bluebird')
 const inquirer = require('inquirer')
 
-const username = 'koruja_contato';
+const username = 'koruja_002' // 'kinbox.koruja';
 const password = 'krjknbx84902';
 
 (async () => {
