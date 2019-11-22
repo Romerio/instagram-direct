@@ -3,12 +3,17 @@ const {
     getAllChatsWithNewMessages,
     approveAllNewChats,
     getAllNewMessages,
-    sendNewChatMessage
+    sendNewChatMessage,
+    getSession,
+    restoreSession
 } = require('../instagram-direct')
 
 class KinboxDirect {
-    constructor() {
+    constructor({ storeWorkspaceSession, getWorkspaceSession }) {
         this.userClients = {}
+
+        this.storeWorkspaceSession = storeWorkspaceSession
+        this.getWorkspaceSession = getWorkspaceSession
     }
 
     /**
@@ -25,11 +30,16 @@ class KinboxDirect {
             if(!username)  throw new Error('username is required')
             if(!password)  throw new Error('password is required')
 
-            const userClient= await authPlatform({ username, password })
+            const userClient = await authPlatform({ username, password })
 
-            // this.userClients[sender] = userClient
+            const { cookies, state } = await getSession({ userClient })
+    
+            const session = JSON.stringify({ cookies, state })
 
-            // #TO-DO: Salvar sessão no workspacePlatform
+            // Salvar sessão no workspacePlatform
+            await this.storeWorkspaceSession({ session })
+
+            this.userClients[sender] = userClient
 
             return true
         } catch (error) {
@@ -47,12 +57,16 @@ class KinboxDirect {
 
     async verifyIfIsAuthenticated({ sender, workspaceId }) {
         try {
-            if(!this.userClients[sender]) {
-                // #TO-DO: restaurar sessão que está no workspacePlatform e salvar no this.userClients
-            }
+            if(!this.userClients[sender]) { // Restaurar sessão que está no workspacePlatform e salvar no this.userClients
+                const session = await this.getWorkspaceSession({ identifier: sender, workspaceId })
 
-            if(!this.userClients[sender]) {
-                throw new Error(`Conta para sender ${sender} desconectada. Necessário realizar o login.`)
+                const userClientTOneRestored = await restoreSession(JSON.parse(session))
+
+                if(!userClientTOneRestored) {
+                    throw new Error(`Conta para sender ${sender} desconectada. Necessário realizar o login.`)
+                }
+
+                this.userClients[sender] = userClientTOneRestored
             }
         } catch (error) {
             throw error
@@ -116,7 +130,7 @@ class KinboxDirect {
 
             if (process.env.NODE_ENV !== 'test') {
                 await sendNewChatMessage({
-                    userClient: null,
+                    userClient: this.userClients[sender],
                     type: 'text', 
                     recipient_user_id , 
                     content: message,
@@ -125,7 +139,9 @@ class KinboxDirect {
 
             return {}
         } catch (error) {
-            throw error
+            console.log(error)
+            
+            return false
         }
     }
 
