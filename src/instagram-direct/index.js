@@ -310,6 +310,7 @@ const getSession = async ({ userClient }) => {
             phoneId: userClient.state.phoneId,
             adid: userClient.state.adid,
             build: userClient.state.build,
+            userData: userClient.state.userData
         }
 
         return { cookies, state }
@@ -330,6 +331,7 @@ const restoreSession = async ({ cookies, state }) => {
         ig.state.phoneId = state.phoneId
         ig.state.adid = state.adid
         ig.state.build = state.build
+        ig.state.userData = state.userData
 
         return ig
     } catch (error) {

@@ -26,9 +26,30 @@ const loginClient = async ({ username, password }) => {
     }
 }
 
+const authPlatform = async ({ username, password }) => {
+    try {
+        const ig = new IgApiClient()
+
+        ig.state.generateDevice(process.env.IG_USERNAME || username)
+
+        await ig.simulate.preLoginFlow()
+        const loggedUser = await ig.account.login(process.env.IG_USERNAME || username, process.env.IG_PASSWORD || password)
+        process.nextTick(async () => await ig.simulate.postLoginFlow())
+
+        ig.state.userData = {
+            pk: loggedUser.pk
+        }
+
+        return ig
+    } catch (error) {
+        throw error
+    }
+}
+
 const getSession = async ({ userClient }) => {
     try {
         const cookies = await userClient.state.serializeCookieJar()
+
         const state = {
             deviceString: userClient.state.deviceString,
             deviceId: userClient.state.deviceId,
@@ -36,6 +57,7 @@ const getSession = async ({ userClient }) => {
             phoneId: userClient.state.phoneId,
             adid: userClient.state.adid,
             build: userClient.state.build,
+            userData: userClient.state.userData
         }
 
         return { cookies, state }
@@ -50,12 +72,14 @@ const restoreSession = async ({ cookies, state }) => {
         const ig = new IgApiClient()
 
         await ig.state.deserializeCookieJar(JSON.stringify(cookies))
+        
         ig.state.deviceString = state.deviceString
         ig.state.deviceId = state.deviceId
         ig.state.uuid = state.uuid
         ig.state.phoneId = state.phoneId
         ig.state.adid = state.adid
         ig.state.build = state.build
+        ig.state.userData = state.userData
 
         return ig
     } catch (error) {
@@ -74,6 +98,10 @@ const printData = async ({ userClient }) => {
         // console.log('- threads')
         // console.log(threads) // Conversas
 
+        console.log('\n## printData ##')
+        console.log('- UserData:')
+        console.log(userClient.state.userData) // Mensagens da primeira conversa da lista
+
         console.log('- Mensagens:', threads[0].items.length)
         console.log(threads[0].items[0]) // Mensagens da primeira conversa da lista
     } catch (error) {
@@ -84,11 +112,11 @@ const printData = async ({ userClient }) => {
 
 const execTest = async () => {
     try {
-        const userClientOne = await loginClient({ username: username1, password: passwordDefault })
+        const userClientOne = await authPlatform({ username: username1, password: passwordDefault })
         await printData({ userClient: userClientOne })
         const { cookies, state } = await getSession({ userClient: userClientOne })
 
-        const userClientTwo = await loginClient({ username: username2, password: passwordDefault })
+        const userClientTwo = await authPlatform({ username: username2, password: passwordDefault })
         await printData({ userClient: userClientTwo })
 
         const userClientTOneRestored = await restoreSession({ cookies, state })
