@@ -1,0 +1,58 @@
+const KinboxDirect = require('../kinbox-direct')
+
+const storeWorkspaceSession = async ({ }) => {
+    try {
+        this.param = '# storeWorkspaceSession'
+        console.log(this.param, (new Date().toString()))
+
+        await new Promise((resolve, reject) => {
+            setTimeout(() => {
+                console.log(this.param, (new Date().toString()))
+                return resolve()
+            }, 2000)
+        })
+    } catch (error) {
+        throw error
+    }
+}
+
+const getWorkspaceSession = async ({ }) => {
+    try {
+        this.param = '# getWorkspaceSession'
+
+        await new Promise((resolve, reject) => {
+            setTimeout(() => {
+                console.log(this.param)
+                return resolve()
+            }, 2000)
+        })
+    } catch (error) {
+        throw error
+    }
+}
+
+const execTest = async () => {
+    try {
+        console.log('#0')
+        const kinboxDirectClient = new KinboxDirect({ storeWorkspaceSession, getWorkspaceSession })
+        const username = 'koruja_contato'
+        const password = 'krjknbx84902'
+
+        console.log('#1')
+
+        const result = await kinboxDirectClient.logIn({ 
+            username: username,
+            password: password,
+            workspaceId: 1,
+            sender: 'identf_test'
+        })
+        
+        console.log('# result')
+        console.log(Object.keys(result))
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+execTest()

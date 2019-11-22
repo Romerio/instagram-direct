@@ -16,6 +16,15 @@ class KinboxDirect {
         this.getWorkspaceSession = getWorkspaceSession
     }
 
+    // #TO-DO: fazer procedimento para baixar mídia da mensage
+    async getMediaData ({ }) {
+        try {
+            
+        } catch (error) {
+            throw error
+        }
+    }
+
     /**
      * Usado na hora de adicionar o canal / Crud de canal
      * 
@@ -41,7 +50,7 @@ class KinboxDirect {
 
             this.userClients[sender] = userClient
 
-            return true
+            return userClient
         } catch (error) {
             throw error
         }
@@ -74,9 +83,6 @@ class KinboxDirect {
     }
 
     /**
-     * Verificar se o identifier está no this.userClients
-     * Se não estiver, loga e associa o identifier
-     * Se estiver, pega o userClient pela referência do identifier
      * 
      */
     async sendMessage({ 
@@ -140,12 +146,11 @@ class KinboxDirect {
             return {}
         } catch (error) {
             console.log(error)
-            
             return false
         }
     }
 
-    async saveMessages({}) {
+    async saveMessages({ }) {
         try {
             
         } catch (error) {
@@ -154,4 +159,4 @@ class KinboxDirect {
     }
 }
 
-module.exports = new KinboxDirect()
+module.exports = KinboxDirect
