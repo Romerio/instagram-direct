@@ -11,14 +11,25 @@ class KinboxDirect {
         this.userClients = {}
     }
 
-    async logIn({ username, password }) {
+    /**
+     * Usado na hora de adicionar o canal / Crud de canal
+     * 
+     */
+    async logIn({ 
+        username, 
+        password,
+        workspaceId,
+        sender // identifier do workspacePlatform
+    }) {
         try {
             if(!username)  throw new Error('username is required')
             if(!password)  throw new Error('password is required')
 
             const userClient= await authPlatform({ username, password })
 
-            this.userClients[sender] = userClient
+            // this.userClients[sender] = userClient
+
+            // #TO-DO: Salvar sessão no workspacePlatform
 
             return true
         } catch (error) {
@@ -34,10 +45,14 @@ class KinboxDirect {
         }
     }
 
-    async verifyIfIsAuthenticated({ sender }) {
+    async verifyIfIsAuthenticated({ sender, workspaceId }) {
         try {
             if(!this.userClients[sender]) {
-                throw new Error('Conta desconectada. Necessário realizar o login.')
+                // #TO-DO: restaurar sessão que está no workspacePlatform e salvar no this.userClients
+            }
+
+            if(!this.userClients[sender]) {
+                throw new Error(`Conta para sender ${sender} desconectada. Necessário realizar o login.`)
             }
         } catch (error) {
             throw error
@@ -67,9 +82,7 @@ class KinboxDirect {
             if(!content)  throw new Error('content is required')
             if(!workspaceId)  throw new Error('workspaceId is required')
 
-            if(!this.userClients[sender]) {
-                throw new Error('Conta desconectada. Necessário realizar o login.')
-            }
+            await this.verifyIfIsAuthenticated({ sender, workspaceId })
 
             const message = obj.reduce((text, word) => {
                 try {
