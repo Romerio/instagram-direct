@@ -1,4 +1,4 @@
-22/11/2019 - 11:30
+22/11/2019 - 15:23
 
 [
   {
@@ -8,7 +8,8 @@
     item_type: 'text',
     text: 'Teste texto 2',
     client_context: '6603647040462739839',
-    username: 'kinbox.koruja'
+    username: 'kinbox.koruja',
+    userData: { pk: 20584470375 }
   },
   {
     item_id: '29043146725721338517234823905411072',
@@ -23,7 +24,8 @@
       media_type: 1
     },
     client_context: '6603646998540921795',
-    username: 'kinbox.koruja'
+    username: 'kinbox.koruja',
+    userData: { pk: 20584470375 }
   },
   {
     item_id: '29043146047483774840123268068802560',
@@ -32,7 +34,8 @@
     item_type: 'text',
     text: 'Teste texto 1',
     client_context: '6603646857623673270',
-    username: 'kinbox.koruja'
+    username: 'kinbox.koruja',
+    userData: { pk: 20584470375 }
   }
 ]
 

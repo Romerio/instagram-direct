@@ -9,19 +9,17 @@ const {
 } = require('../instagram-direct')
 
 class KinboxDirect {
-    constructor({ storeWorkspaceSession, getWorkspaceSession, sendMessageToWorkspace }) {
+    constructor({ getWorkspaceSession, sendMessageToWorkspace }) {
         this.userClients = {}
 
-        this.storeWorkspaceSession = storeWorkspaceSession
-        this.getWorkspaceSession = getWorkspaceSession
         this.getWorkspaceSession = getWorkspaceSession
         this.sendMessageToWorkspace = sendMessageToWorkspace
     }
 
     // #TO-DO: fazer procedimento para baixar mídia da mensage
-    async getMediaData ({ }) {
+    async getMediaData({ }) {
         try {
-            
+            console.log('#getMediaData')
         } catch (error) {
             throw error
         }
@@ -29,38 +27,33 @@ class KinboxDirect {
 
     /**
      * Usado na hora de adicionar o canal / Crud de canal
-     * 
+     *
      */
-    async logIn({ 
-        username, 
+    async logInAndGetSession({
+        username,
         password,
-        workspaceId,
-        sender // identifier do workspacePlatform
     }) {
         try {
-            if(!username)  throw new Error('username is required')
-            if(!password)  throw new Error('password is required')
+            if (!username) throw new Error('username is required')
+            if (!password) throw new Error('password is required')
 
             const userClient = await authPlatform({ username, password })
 
             const { cookies, state } = await getSession({ userClient })
-    
+
             const session = JSON.stringify({ cookies, state })
 
-            // Salvar sessão no workspacePlatform
-            await this.storeWorkspaceSession({ session })
+            this.userClients[userClient.state.userData.pk] = userClient
 
-            this.userClients[sender] = userClient
-
-            return userClient
+            return { identifier: userClient.state.userData.pk, session }
         } catch (error) {
             throw error
         }
     }
 
-    async logOut({}) {
+    async logOutAndRemoveSession({ }) {
         try {
-            
+            console.log('#logOutAndRemoveSession')
         } catch (error) {
             throw error
         }
@@ -68,12 +61,12 @@ class KinboxDirect {
 
     async verifyIfIsAuthenticated({ sender, workspaceId }) {
         try {
-            if(!this.userClients[sender]) { // Restaurar sessão que está no workspacePlatform e salvar no this.userClients
+            if (!this.userClients[sender]) { // Restaurar sessão que está no workspacePlatform e salvar no this.userClients
                 const session = await this.getWorkspaceSession({ identifier: sender, workspaceId })
 
                 const userClientTOneRestored = await restoreSession(JSON.parse(session))
 
-                if(!userClientTOneRestored) {
+                if (!userClientTOneRestored) {
                     throw new Error(`Conta para sender ${sender} desconectada. Necessário realizar o login.`)
                 }
 
@@ -85,9 +78,9 @@ class KinboxDirect {
     }
 
     /**
-     * 
+     *
      */
-    async sendMessage({ 
+    async sendMessage({
         workspaceId = null,
         sender = null, // identifier do workspacePlatform
         recipient = null,
@@ -95,14 +88,14 @@ class KinboxDirect {
         content = null,
         extraData = null,
         operator = null,
-     }) {
+    }) {
         try {
             const obj = typeof content === 'object' ? content : JSON.parse(content)
 
-            if(!sender)  throw new Error('sender (workspacePlatform identifier) is required')
-            if(!recipient)  throw new Error('recipient is required')
-            if(!content)  throw new Error('content is required')
-            if(!workspaceId)  throw new Error('workspaceId is required')
+            if (!sender) throw new Error('sender (workspacePlatform identifier) is required')
+            if (!recipient) throw new Error('recipient is required')
+            if (!content) throw new Error('content is required')
+            if (!workspaceId) throw new Error('workspaceId is required')
 
             await this.verifyIfIsAuthenticated({ sender, workspaceId })
 
@@ -139,8 +132,8 @@ class KinboxDirect {
             if (process.env.NODE_ENV !== 'test') {
                 await sendNewChatMessage({
                     userClient: this.userClients[sender],
-                    type: 'text', 
-                    recipient_user_id , 
+                    type: 'text',
+                    recipient_user_id: recipient,
                     content: message,
                 })
             }
@@ -154,7 +147,6 @@ class KinboxDirect {
 
     async saveMessages({ }) {
         try {
-
             await this.sendMessageToWorkspace({
 
             })

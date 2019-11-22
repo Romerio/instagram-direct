@@ -2,9 +2,10 @@ const { IgApiClient } = require('instagram-private-api')
 const request = require('request').defaults({ encoding: null })
 const { readFileSync, writeFileSync } = require('fs')
 
-const parseMessageData = ({ message, chatData }) => {
+const parseMessageData = ({ message, chatData, userData }) => {
     try {
         message.username = chatData.inviter.username
+        message.userData = userData
 
         return message
     } catch (error) {
@@ -54,7 +55,7 @@ const authPlatform = async ({ username, password }) => {
         process.nextTick(async () => await ig.simulate.postLoginFlow())
 
         ig.state.userData = {
-            pk: loggedUser.pk
+            pk: loggedUser.pk,
         }
 
         return ig
@@ -77,7 +78,7 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
         // Esse chat nunca foi processado antes, não tem referência de última mensagem que pegou
         // Retorna apenas a última mensagem da conversa
         if(!chatLastSeen) {
-            return [parseMessageData({ message: chatData.items[0], chatData })]
+            return [parseMessageData({ message: chatData.items[0], chatData, userData: userClient.state.userData })]
         }
 
         /*const firstPageOfMessages = chatData.items.filter(messageItem => {
@@ -89,7 +90,7 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
                 acc.messagesFromInviterCounter = acc.messagesFromInviterCounter + 1
 
                 if(messageItem.timestamp > chatLastSeen) {
-                    acc.newMessages.push(parseMessageData({ message: messageItem, chatData }))
+                    acc.newMessages.push(parseMessageData({ message: messageItem, chatData, userData: userClient.state.userData }))
                 }
             }
 
@@ -125,7 +126,7 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
                         acc.messagesFromInviterCounter = acc.messagesFromInviterCounter + 1
         
                         if(messageItem.timestamp > chatLastSeen) {
-                            acc.newMessages.push(parseMessageData({ message: messageItem, chatData }))
+                            acc.newMessages.push(parseMessageData({ message: messageItem, chatData, userData: userClient.state.userData }))
                         }
                     }
         
