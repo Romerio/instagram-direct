@@ -2,6 +2,31 @@ const { IgApiClient } = require('instagram-private-api')
 const request = require('request').defaults({ encoding: null })
 const { readFileSync, writeFileSync } = require('fs')
 
+const parseMessageData = ({ message, chatData }) => {
+    try {
+        message.username = chatData.inviter.username
+
+        return message
+    } catch (error) {
+       throw error
+    }
+}
+
+const parseChatData = ({ chatData }) => {
+    try {
+        return {
+            thread_id: chatData.thread_id,
+            items: chatData.items,
+            read_state: chatData.read_state,
+            inviter: chatData.inviter,
+            last_seen_at: chatData.last_seen_at,
+            last_permanent_item:  chatData.last_permanent_item
+        }
+    } catch (error) {
+       throw error
+    }
+}
+
 const approveAllNewChats = async ({ userClient }) => {
     try {
         const directPending = userClient.feed.directPending()
@@ -52,7 +77,7 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
         // Esse chat nunca foi processado antes, não tem referência de última mensagem que pegou
         // Retorna apenas a última mensagem da conversa
         if(!chatLastSeen) {
-            return [chatData.items[0]]
+            return [parseMessageData({ message: chatData.items[0], chatData })]
         }
 
         /*const firstPageOfMessages = chatData.items.filter(messageItem => {
@@ -64,7 +89,7 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
                 acc.messagesFromInviterCounter = acc.messagesFromInviterCounter + 1
 
                 if(messageItem.timestamp > chatLastSeen) {
-                    acc.newMessages.push(messageItem)
+                    acc.newMessages.push(parseMessageData({ message: messageItem, chatData }))
                 }
             }
 
@@ -100,7 +125,7 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
                         acc.messagesFromInviterCounter = acc.messagesFromInviterCounter + 1
         
                         if(messageItem.timestamp > chatLastSeen) {
-                            acc.newMessages.push(messageItem)
+                            acc.newMessages.push(parseMessageData({ message: messageItem, chatData }))
                         }
                     }
         
@@ -183,14 +208,7 @@ const getAllNewChatMessages = async ({ userClient, chatData }) => {
                     ? [
                         ...moreChatsWithNewMessage.reduce((acc, chatItem) => {
                             if(!chatItem.muted && !chatItem.is_group && !chatItem.archived) {
-                                acc.push({
-                                    thread_id: chatItem.thread_id,
-                                    items: chatItem.items,
-                                    read_state: chatItem.read_state,
-                                    inviter: chatItem.inviter,
-                                    last_seen_at: chatItem.last_seen_at,
-                                    last_permanent_item:  chatItem.last_permanent_item
-                                })
+                                acc.push(parseChatData({ chatData: chatItem }))
                             }
 
                             return acc
@@ -224,11 +242,11 @@ const getAllNewMessages = async ({ userClient, chatsWithNewMessage }) => {
                 if(newMessages.length > 0) {
                     allNewMessages = [
                         ...allNewMessages,
-                        ...newMessages.map(messagemItem => {
+                        ...newMessages/*.map(messagemItem => {
                             messagemItem.username = chatItem.inviter.username
 
                             return messagemItem
-                        })
+                        })*/
                     ]
 
                     const thread = await userClient.entity.directThread(chatItem.thread_id)

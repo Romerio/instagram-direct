@@ -1,3 +1,43 @@
+22/11/2019 - 11:30
+
+[
+  {
+    item_id: '29043146851223761822717758324867072',
+    user_id: 20719596295,
+    timestamp: '1574432145595617',
+    item_type: 'text',
+    text: 'Teste texto 2',
+    client_context: '6603647040462739839',
+    username: 'kinbox.koruja'
+  },
+  {
+    item_id: '29043146725721338517234823905411072',
+    user_id: 20719596295,
+    timestamp: '1574432138792117',
+    item_type: 'media',
+    media: {
+      id: '2182817447405176885',
+      image_versions2: [Object],
+      original_width: 520,
+      original_height: 390,
+      media_type: 1
+    },
+    client_context: '6603646998540921795',
+    username: 'kinbox.koruja'
+  },
+  {
+    item_id: '29043146047483774840123268068802560',
+    user_id: 20719596295,
+    timestamp: '1574432102024785',
+    item_type: 'text',
+    text: 'Teste texto 1',
+    client_context: '6603646857623673270',
+    username: 'kinbox.koruja'
+  }
+]
+
+-------------
+
 [
     {
         item_id: '28992112806592644126482172737486848',
