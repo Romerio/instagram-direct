@@ -37,7 +37,8 @@ const authPlatform = async ({ username, password }) => {
         process.nextTick(async () => await ig.simulate.postLoginFlow())
 
         ig.state.userData = {
-            pk: loggedUser.pk
+            pk: loggedUser.pk,
+            username: loggedUser.username,
         }
 
         return ig
