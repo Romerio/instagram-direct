@@ -21,14 +21,14 @@ const password = 'krjknbx84902';
     console.log(ig.state.checkpoint); // Challenge info here
 
     console.log('- code input')
-    const { code } = await inquirer.prompt([
+    /*const { code } = await inquirer.prompt([
       {
         type: 'input',
         name: 'code',
         message: 'Enter code',
       },
-    ]);
+    ]);*/
     console.log('- result')
-    console.log(await ig.challenge.sendSecurityCode(code));
+    console.log(await ig.challenge.sendSecurityCode(904673));
   });
 })();

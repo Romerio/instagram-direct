@@ -14,6 +14,9 @@ const password = 'krjknbx84902';
     console.log('- auth')
     console.log(auth);
   }).catch(IgCheckpointError, async () => {
-    console.log(await ig.challenge.sendSecurityCode(327860));
+    console.log('- checkpoint')
+    console.log(ig.state.checkpoint); // Checkpoint info here
+    console.log('- result')
+    console.log(await ig.challenge.sendSecurityCode(904673));
   });
 })();
