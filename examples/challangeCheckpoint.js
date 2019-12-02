@@ -2,16 +2,28 @@ const { IgApiClient, IgCheckpointError } = require('instagram-private-api')
 const Bluebird = require('bluebird')
 const inquirer = require('inquirer')
 
-//const username = 'koruja_002' // 'kinbox.koruja';
-const username = 'koruja_contato' // 'kinbox.koruja';
-const password = 'krjknbx84902';
+//const username = 'koruja_002' //  koruja_contato - 'kinbox.koruja';
+//const username = 'kinbox.koruja' // 'kinbox.koruja';
+//const password = 'krjknbx84902';
+
+const username = 'ganhomaisapp' // 'kinbox.koruja';
+const password = '123456teste';
+
+// const username = 'andrewcsz' // 'kinbox.koruja';
+// const password = 'koruja@12345';
 
 (async () => {
   const ig = new IgApiClient();
   ig.state.generateDevice(username);
-  ig.state.proxyUrl = process.env.IG_PROXY;
+  // ig.state.proxyUrl = 'http://218.250.246.190:3128' // process.env.IG_PROXY;
   Bluebird.try(async () => {
+
+   // await ig.simulate.preLoginFlow()
+
     const auth = await ig.account.login(username, password);
+    
+    //process.nextTick(async () => await ig.simulate.postLoginFlow())
+
     console.log('- auth')
     console.log(auth);
   }).catch(IgCheckpointError, async () => {

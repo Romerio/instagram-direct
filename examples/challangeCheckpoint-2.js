@@ -2,7 +2,7 @@ const { IgApiClient, IgCheckpointError } = require('instagram-private-api')
 const Bluebird = require('bluebird')
 const inquirer = require('inquirer')
 
-const username = 'koruja_contato' // 'kinbox.koruja';
+const username = 'kinbox.koruja' // koruja_contato - 'kinbox.koruja';
 const password = 'krjknbx84902';
 
 (async () => {
@@ -14,6 +14,6 @@ const password = 'krjknbx84902';
     console.log('- auth')
     console.log(auth);
   }).catch(IgCheckpointError, async () => {
-    console.log(await ig.challenge.sendSecurityCode(327860));
+    console.log(await ig.challenge.sendSecurityCode(946217));
   });
 })();
