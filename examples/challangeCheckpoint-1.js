@@ -8,7 +8,7 @@ const password = 'krjknbx84902';
 (async () => {
   const ig = new IgApiClient();
   ig.state.generateDevice(username);
-  ig.state.proxyUrl = process.env.IG_PROXY;
+  //ig.state.proxyUrl = process.env.IG_PROXY;
   Bluebird.try(async () => {
     const auth = await ig.account.login(username, password);
     console.log('- auth')

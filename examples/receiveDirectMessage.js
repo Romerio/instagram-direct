@@ -10,7 +10,7 @@ const password = 'krjknbx84902'
 
 const receiveMessages = async () => {
     try {
-        ig.state.generateDevice(username);
+        ig.state.generateDevice(username2);
         ig.state.proxyUrl = process.env.IG_PROXY;
 
         await ig.simulate.preLoginFlow();
